@@ -1,0 +1,176 @@
+C51 COMPILER V9.60.0.0   TEST                                                              04/12/2020 18:04:06 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE TEST
+OBJECT MODULE PLACED IN .\Objects\Test.obj
+COMPILER INVOKED BY: D:\Keil_v5\C51\BIN\C51.EXE Test.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\Test
+                    -.lst) TABS(2) OBJECT(.\Objects\Test.obj)
+
+line level    source
+
+   1          #include <reg52.h>
+   2          sbit p10=P1^0;
+   3          sbit p11=P1^1;
+   4          sbit p12=P1^2;
+   5          sbit p13=P1^3;
+   6          sbit p14=P1^4;
+   7          sbit p15=P1^5;
+   8          sbit p16=P1^6;
+   9          sbit p17=P1^7;
+  10          sbit p20=P2^0;
+  11          sbit p21=P2^1;
+  12          sbit p22=P2^2;
+  13          sbit p23=P2^3;
+  14          sbit p24=P2^4;
+  15          sbit p25=P2^5;
+  16          sbit p26=P2^6;
+  17          sbit p27=P2^7;
+  18          sbit p34=P3^4;
+  19          sbit p35=P3^5;
+  20          sbit p36=P3^6;
+  21          sbit p37=P3^7;
+  22          int Elevator1=0,Elevator2=0;
+  23          int up1=0,up2=0,down1=0,down2=0;  
+  24          unsigned char e1=0,e2=0,up=0,down=0;
+  25          void delay(int x){
+  26   1        while(x>0){x--;}
+  27   1      }
+  28          void display_elevator(){
+  29   1        P0=Elevator1+Elevator2*16+17;
+  30   1      }
+  31          void display_LED(){
+  32   1        int i=0;
+  33   1        while(i<8){
+  34   2          P3=i^7;
+  35   2          p34=(e1>>i)&1>0;
+  36   2          p35=(e2>>i)&1>0;
+  37   2          p36=(up>>i)&1>0;
+  38   2          p37=(down>>i)&1>0;
+  39   2          delay(50);
+  40   2          i++;
+  41   2        }
+  42   1      }
+  43          void move(int *pup1,int *pup2,int *pdown1,int *pdown2,unsigned char *pe,int *pElevator1,int *pElevator2){
+  44   1        int f;
+  45   1        bit flag;
+  46   1        if(*pup1){
+  47   2          f=7;flag=1;
+  48   2          while(f>*pElevator1){
+  49   3            if(*pe&(1<<f)){flag=0;(*pElevator1)++;break;}
+  50   3            if(up&(1<<f)){if(*pdown2||*pElevator2<=*pElevator1||*pElevator2>f){flag=0;(*pElevator1)++;break;}}
+  51   3            if(down&(1<<f)){if(*pdown2||*pElevator2<=*pElevator1||*pElevator2>f){flag=0;(*pElevator1)++;break;}}
+  52   3            f--;
+  53   3          }
+  54   2          if(flag)*pup1=0;
+C51 COMPILER V9.60.0.0   TEST                                                              04/12/2020 18:04:06 PAGE 2   
+
+  55   2          else{
+  56   3            if(*pElevator1==f){
+  57   4              up=up&((1<<f)^255);
+  58   4              down=down&((1<<f)^255);
+  59   4              *pe=*pe&((1<<f)^255);
+  60   4            }
+  61   3            else{
+  62   4              up=up&((1<<*pElevator1)^255);
+  63   4              *pe=*pe&((1<<*pElevator1)^255);
+  64   4            }
+  65   3          }
+  66   2        }
+  67   1        else if(*pdown1){
+  68   2          f=0;flag=1;
+  69   2          while(f<*pElevator1){
+  70   3            if(*pe&(1<<f)){flag=0;(*pElevator1)--;break;}
+  71   3            if(down&(1<<f)){if(*pup2||*pElevator2>=*pElevator1||*pElevator2<f){flag=0;(*pElevator1)--;break;}}
+  72   3            if(up&(1<<f)){if(*pup2||*pElevator2>=*pElevator1||*pElevator2<f){flag=0;(*pElevator1)--;break;}}
+  73   3            f++;
+  74   3          }
+  75   2          if(flag)*pdown1=0;
+  76   2          else{
+  77   3            if(*pElevator1==f){
+  78   4              up=up&((1<<f)^255);
+  79   4              down=down&((1<<f)^255);
+  80   4              *pe=*pe&((1<<f)^255);
+  81   4            }
+  82   3            else{
+  83   4              down=down&((1<<*pElevator1)^255);
+  84   4              *pe=*pe&((1<<*pElevator1)^255);
+  85   4            }
+  86   3          }
+  87   2        }
+  88   1        else{
+  89   2          f=7;
+  90   2          while(f>=0){
+  91   3            if(f>*pElevator1){
+  92   4              if(*pe&(1<<f)){*pup1=1;break;}
+  93   4              if(up&(1<<f)){if(*pdown2||*pElevator2<*pElevator1||*pElevator2==*pElevator1&&!*pup2||*pElevator2>f){*p
+             -up1=1;break;}}
+  94   4              if(down&(1<<f)){if(*pdown2||*pElevator2<*pElevator1||*pElevator2==*pElevator1&&!*pup2||*pElevator2>f){
+             -*pup1=1;break;}}
+  95   4            }
+  96   3            else if(f<*pElevator1){
+  97   4              if(*pe&(1<<f)){*pdown1=1;break;}
+  98   4              if(down&(1<<f)){if(*pup2||*pElevator2>*pElevator1||*pElevator2==*pElevator1&&!*pdown2||*pElevator2<f){
+             -*pdown1=1;break;}}
+  99   4              if(up&(1<<f)){if(*pup2||*pElevator2>*pElevator1||*pElevator2==*pElevator1&&!*pdown2||*pElevator2<f){*p
+             -down1=1;break;}}
+ 100   4            }
+ 101   3            else{
+ 102   4              up=up&((1<<f)^255);
+ 103   4              down=down&((1<<f)^255);
+ 104   4              *pe=*pe&((1<<f)^255);
+ 105   4            }
+ 106   3            f--;
+ 107   3          }
+ 108   2        }
+ 109   1      }
+ 110          void main(){
+ 111   1        int i;
+ 112   1        bit push=1;
+C51 COMPILER V9.60.0.0   TEST                                                              04/12/2020 18:04:06 PAGE 3   
+
+ 113   1        display_elevator();
+ 114   1        while(1){
+ 115   2          i=0;
+ 116   2          while(i<120){
+ 117   3            if((p13&p17&p23&p27)^push){
+ 118   4              if(push){
+ 119   5                push=0;
+ 120   5                if(!p13){
+ 121   6                  up=up|(1<<(p10|p11*2|p12*4))&127;
+ 122   6                }
+ 123   5                if(!p17){
+ 124   6                  down=down|(1<<(p14|p15*2|p16*4))&254;
+ 125   6                }
+ 126   5                if(!p23){
+ 127   6                  e1=e1|(1<<(p20|p21*2|p22*4));
+ 128   6                }
+ 129   5                if(!p27){
+ 130   6                  e2=e2|(1<<(p24|p25*2|p26*4));
+ 131   6                }
+ 132   5              }
+ 133   4              else{
+ 134   5                push=1;
+ 135   5              }
+ 136   4            }
+ 137   3            i++;
+ 138   3            display_LED();
+ 139   3          }
+ 140   2          move(&up1,&up2,&down1,&down2,&e1,&Elevator1,&Elevator2);
+ 141   2          move(&up2,&up1,&down2,&down1,&e2,&Elevator2,&Elevator1);
+ 142   2          display_elevator();
+ 143   2        }
+ 144   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1994    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     16      23
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       2
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
